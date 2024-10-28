@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué aprendí? - Preguntas</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #001f4d;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            max-width: 500px;
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #002147;
+            box-shadow: 0px 0px 20px #000;
+        }
+        h1 {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .options button {
+            padding: 10px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .options button:hover {
+            background-color: #45a049;
+        }
+        #next-btn {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 1.0em;
+            background-color: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+        #next-btn:hover {
+            background-color: #c9302c;
+        }
+        .score {
+            font-size: 1em;
+            margin-top: 10px;
+            color: #FFD700;
+        }
+        .result {
+            font-size: 1.5em;
+            margin-top: 30px;
+        }
+        .result.good {
+            color: #28a745;
+        }
+        .result.bad {
+            color: #dc3545;
+        }
+        #retry-btn {
+            margin-top: 30px;
+            padding: 15px 30px;
+            font-size: 1.5em;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+        #retry-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        #retry-btn:active {
+            transform: translateY(0);
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+                font-size: 0.9em;
+            }
+            h1, .score {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>¿Qué aprendí?</h1>
+        <div class="question" id="question"></div>
+        <div class="options" id="options"></div>
+        <button id="next-btn" onclick="showNextQuestion()">Siguiente</button>
+        <div class="score" id="score">Puntos: 0</div>
+        <div class="result" id="result"></div>
+        <button id="retry-btn" style="display:none;" onclick="retry()">Intentar nuevamente</button>
+    </div>
+
+    <script>
+        const preguntas = [
+        { pregunta: "¿Puedes burcar peliculas en Google Académico?", opciones: ["Sí", "No", "Hasta se puede descargar musica", "Nunca escuché de él"], respuesta: "No" },
+        { pregunta: "¿Para qué sirve el apartado de 'Alertas' en Google Académico?", opciones: ["Notificaciones de nuevos artículos", "Guardar artículos", "Eliminar artículos", "No tiene función"], respuesta: "Notificaciones de nuevos artículos" },
+        { pregunta: "¿Qué tipo de contenido se puede encontrar en Google Académico?", opciones: ["Artículos académicos", "Noticias", "Videos", "Podcasts"], respuesta: "Artículos académicos" },
+        { pregunta: "¿Qué herramientas ofrece Google Académico para citar documentos?", opciones: ["Generador de citas", "Traductor", "Corrector ortográfico", "Calendario"], respuesta: "Generador de citas" },
+        { pregunta: "¿Para qué sirve la opción de 'Mi biblioteca' en Google Académico?", opciones: ["Guardar artículos", "Eliminar artículos", "Buscar temas", "Cambiar idioma"], respuesta: "Guardar artículos" },
+        { pregunta: "¿Se puede descargar música en Google Académico?", opciones: ["Si se puede", "No se puede", "En citar", "En Configuarción"], respuesta: "No se puede" },
+        { pregunta: "¿Qué puedes encontrar en el perfil de un autor?", opciones: ["Publicaciones", "Edad", "Videos", "Noticias"], respuesta: "Publicaciones" },
+        { pregunta: "¿Qué hace Google Académico diferente de Google Search?", opciones: ["Contenido académico", "Anuncios", "Redes sociales", "Nada"], respuesta: "Contenido académico" },
+        { pregunta: "¿Puedo comprar ropa en Google Académico?", opciones: ["No", "Si", "Lo puedes hacer en Citar", "Lo puedes hacer en Perfil"], respuesta: "No" },
+        { pregunta: "¿Cómo puedes ordenar los resultados en Google Académico?", opciones: ["Por relevancia o fecha", "Por autor", "Por popularidad", "No se puede"], respuesta: "Por relevancia o fecha" },
+        { pregunta: "¿Cuál es la ventaja principal de Google Académico?", opciones: ["Acceso a investigaciones", "Ver películas", "Acceso a juegos", "Entradas a conciertos"], respuesta: "Acceso a investigaciones" },
+        { pregunta: "¿Puedes guardar artículos en Google Académico?", opciones: ["Sí", "No", "Algunos", "Depende del artículo"], respuesta: "Sí" },
+        { pregunta: "¿Qué diferencia hay entre Google y Google Académico?", opciones: ["Contenido especializado", "Nada", "Usabilidad", "Opciones"], respuesta: "Contenido especializado" },
+        { pregunta: "¿Qué muestra el apartado de estadísticas en Google Académico?", opciones: ["Citas e impacto", "Noticias", "Fotos", "Chats"], respuesta: "Citas e impacto" },
+        { pregunta: "¿Cómo puedes encontrar artículos de un idioma específico?", opciones: ["En configuración", "No se puede", "En biblioteca", "Buscando manualmente"], respuesta: "En configuración" },
+        { pregunta: "¿Es posible ver los artículos completos?", opciones: ["Depende del acceso", "No", "Algunos", "Sí"], respuesta: "Depende del acceso" },
+        { pregunta: "¿Cómo puedes citar un artículo?", opciones: ["En la opción de citar", "No se puede", "En bibliotecas", "Contactando al autor"], respuesta: "En la opción de citar" },
+        { pregunta: "¿Puedes hacer búsquedas avanzadas en Google Académico?", opciones: ["Sí", "No", "Depende del tema", "Con acceso especial"], respuesta: "Sí" },
+        { pregunta: "¿Es gratis Google Académico?", opciones: ["Sí", "No", "Depende del país", "Para algunas personas"], respuesta: "Sí" },
+        { pregunta: "¿Puedo ver Netflix en Google Académico?", opciones: ["¡Claro que si!", "No", "Solo música", "Solo Memes"], respuesta: "No" }
+        ];
+
+        let preguntasSeleccionadas = JSON.parse(sessionStorage.getItem('preguntasSeleccionadas')) || [];
+
+        if (preguntasSeleccionadas.length === 0) {
+            while (preguntasSeleccionadas.length < 10) {
+                const indice = Math.floor(Math.random() * preguntas.length);
+                if (!preguntasSeleccionadas.some(p => p.pregunta === preguntas[indice].pregunta)) {
+                    preguntasSeleccionadas.push(preguntas[indice]);
+                }
+            }
+            sessionStorage.setItem('preguntasSeleccionadas', JSON.stringify(preguntasSeleccionadas));
+        }
+
+        let preguntaActual = 0;
+        let puntaje = 0;
+
+        function mostrarPregunta() {
+            const pregunta = preguntasSeleccionadas[preguntaActual];
+            document.getElementById("question").textContent = pregunta.pregunta;
+            const opciones = [...pregunta.opciones];
+            const indiceCorrecto = opciones.indexOf(pregunta.respuesta);
+            opciones.splice(indiceCorrecto, 1);
+            opciones.splice(Math.floor(Math.random() * (opciones.length + 1)), 0, pregunta.respuesta);
+
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = '';
+            opciones.forEach(opcion => {
+                const button = document.createElement("button");
+                button.textContent = opcion;
+                button.onclick = () => verificarRespuesta(opcion, pregunta.respuesta, button);
+                optionsContainer.appendChild(button);
+            });
+
+            document.getElementById("next-btn").style.display = "none";
+        }
+
+        function verificarRespuesta(opcionElegida, respuestaCorrecta, botonElegido) {
+            const botones = document.querySelectorAll(".options button");
+            botones.forEach(boton => {
+                if (boton.textContent === respuestaCorrecta) {
+                    boton.style.backgroundColor = "green";
+                } else {
+                    boton.style.backgroundColor = "red";
+                }
+                boton.disabled = true;
+            });
+
+            if (opcionElegida === respuestaCorrecta) {
+                puntaje++;
+            }
+
+            document.getElementById("score").textContent = `Puntos: ${puntaje}`;
+            document.getElementById("next-btn").style.display = "block";
+
+            if (preguntaActual === preguntasSeleccionadas.length - 1) {
+                mostrarResultados();
+            }
+        }
+
+        function showNextQuestion() {
+            preguntaActual++;
+            if (preguntaActual < preguntasSeleccionadas.length) {
+                mostrarPregunta();
+            } else {
+                mostrarResultados();
+            }
+        }
+
+        function mostrarResultados() {
+            document.getElementById("question").style.display = "none";
+            document.getElementById("options").style.display = "none";
+            document.getElementById("next-btn").style.display = "none";
+            document.getElementById("score").style.display = "none";
+
+            const resultadoMensaje = document.createElement("div");
+            resultadoMensaje.className = "result";
+            resultadoMensaje.textContent = `Tu puntaje es: ${puntaje} de 10`;
+            document.querySelector('.container').appendChild(resultadoMensaje);
+
+            const mensajeFinal = document.createElement("div");
+            mensajeFinal.className = "result";
+            mensajeFinal.textContent = puntaje >= 8 ? "¡Felicidades!" : "Sigue participando.";
+            mensajeFinal.classList.add(puntaje >= 8 ? "good" : "bad");
+            document.querySelector('.container').appendChild(mensajeFinal);
+
+            document.getElementById("retry-btn").style.display = "block";
+        }
+
+        function retry() {
+            sessionStorage.removeItem('preguntasSeleccionadas');
+            location.reload();
+        }
+
+        mostrarPregunta();
+    </script>
+</body>
+</html>
